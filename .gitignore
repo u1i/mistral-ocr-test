@@ -28,9 +28,6 @@ wheels/
 # Environment variables
 .env
 
-# Output directory
-output/
-
 # IDE specific files
 .idea/
 .vscode/
