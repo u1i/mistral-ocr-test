@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Slides Viewer</title>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        h1, h2, h3 {
+            color: #333;
+        }
+        img {
+            max-width: 100%;
+            height: auto;
+            display: block;
+            margin: 20px auto;
+            border-radius: 5px;
+        }
+        .slide {
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #eee;
+        }
+        .slide-nav {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+        button {
+            padding: 8px 16px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .slide-number {
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Slides Viewer</h1>
+        <div class="slide-nav">
+            <button id="prev-btn">Previous Slide</button>
+            <span id="slide-counter">Slide 1 of ?</span>
+            <button id="next-btn">Next Slide</button>
+        </div>
+        <div id="slide-container"></div>
+    </div>
+
+    <script>
+        // Function to load markdown files
+        async function loadMarkdownFiles() {
+            const slides = [];
+            let currentSlide = 0;
+            let totalSlides = 0;
+            
+            // Try to load slides until we don't find any more
+            let index = 0;
+            while (true) {
+                try {
+                    const response = await fetch(`output/page_${index}.md`);
+                    if (!response.ok) break;
+                    
+                    const markdown = await response.text();
+                    slides.push(markdown);
+                    index++;
+                } catch (error) {
+                    break;
+                }
+            }
+            
+            totalSlides = slides.length;
+            
+            // Update the slide counter
+            function updateSlideCounter() {
+                document.getElementById('slide-counter').textContent = `Slide ${currentSlide + 1} of ${totalSlides}`;
+            }
+            
+            // Display the current slide
+            function displaySlide() {
+                const slideContainer = document.getElementById('slide-container');
+                const markdown = slides[currentSlide];
+                
+                // Convert markdown to HTML
+                slideContainer.innerHTML = `
+                    <div class="slide">
+                        <div class="slide-number">Slide ${currentSlide + 1}</div>
+                        <div class="slide-content">${marked.parse(markdown)}</div>
+                    </div>
+                `;
+                
+                updateSlideCounter();
+            }
+            
+            // Set up navigation buttons
+            document.getElementById('prev-btn').addEventListener('click', () => {
+                if (currentSlide > 0) {
+                    currentSlide--;
+                    displaySlide();
+                }
+            });
+            
+            document.getElementById('next-btn').addEventListener('click', () => {
+                if (currentSlide < totalSlides - 1) {
+                    currentSlide++;
+                    displaySlide();
+                }
+            });
+            
+            // Display the first slide
+            if (totalSlides > 0) {
+                displaySlide();
+            } else {
+                document.getElementById('slide-container').innerHTML = '<p>No slides found.</p>';
+            }
+        }
+        
+        // Load slides when the page loads
+        window.addEventListener('load', loadMarkdownFiles);
+    </script>
+</body>
+</html>
