@@ -2,6 +2,9 @@
 
 This project uses Mistral's OCR capabilities to analyze PDF documents and convert them to structured markdown. It demonstrates how to use the Mistral API to extract text, structure, and images from PDFs and save the results in a readable format.
 
+
+![](sample.png)
+
 ## How It Works
 
 This script demonstrates the complete workflow for processing local PDF files with Mistral's OCR API:
